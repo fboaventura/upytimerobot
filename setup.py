@@ -44,7 +44,7 @@ setup(
     name="upytimerobot",
     version=upytimerobot.__version__,
     description="""Python3 module to interact with UptimeRobot API.""",
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
