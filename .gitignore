@@ -60,3 +60,8 @@ docs/_build/
 # PyBuilder
 target/
 
+# Jekyll Pages
+_site
+.sass-cache
+.jekyll-metadata
+public/
