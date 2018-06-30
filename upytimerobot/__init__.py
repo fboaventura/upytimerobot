@@ -8,13 +8,12 @@ import json
 import requests
 import sys
 from urllib.parse import quote
-# from upytimerobot import colors
 from upytimerobot import config
 from .colors import reset, red, yellow, blue, green
 from .constants import ts_monitor, ts_alert_contacts, ts_log, ts_mwidow, ts_psp
 
 __name__ = "upytimerobot"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Frederico Freire Boaventura"
 __email__ = "frederico@boaventura.net"
 __url__ = "https://gitlab.com/fboaventura/upytimerobot"
@@ -56,6 +55,13 @@ class UptimeRobot():
             self.output = kwargs['logs']
         else:
             self.logs = 0
+
+        if self.config['alert_contacts']:
+            self.alert_contacts = self.config['alert_contacts']
+        elif kwargs['alert_contacts']:
+            self.alert_contacts = kwargs['alert_contacts']
+        else:
+            pass
 
         self.api_url = "https://api.uptimerobot.com/v2/"
         self.headers = {
@@ -213,6 +219,7 @@ class UptimeRobot():
                       'response_times_average', 'response_times_start_date', 'response_times_end_date',
                       'alert_contacts', 'mwindows', 'ssl', 'custom_http_headers', 'timezone', 'offset',
                       'limit', 'search']
+
         return self._http_request('getMonitors', **kwargs)
 
     def get_monitor_by_name(self, friendly_name: str):
@@ -232,12 +239,11 @@ class UptimeRobot():
         Fetch and returns the monitor by ID
         """
         monitor = self.get_monitors(monitors=monitor_id)
-        if not monitor or monitor['stat'] == 'fail':
+        if not monitor['monitors'] or monitor['stat'] == 'fail':
             return {'stat': 'fail', 'message': 'Monitor not found'}
         else:
             return monitor
 
-    # FIXME: Get monitor by type is not working properly
     def get_monitor_by_type(self, types: str):
         """
         Fetch and returns the monitor by type. The possible types are:
@@ -247,14 +253,13 @@ class UptimeRobot():
             4: Port
         One can concatenate the types IDs to make a query for multiple monitors, using `X-X-X` as string format.
         """
-        monitor = self.get_monitors(type=types)
-        if not monitor or monitor['stat'] == 'fail':
+        monitor = self.get_monitors(types=types)
+        if not monitor['monitors'] or monitor['stat'] == 'fail':
             return {'stat': 'fail', 'message': 'Monitor not found'}
         else:
             return monitor
 
-    # FIXME: Get monitory by status is not working properly
-    def get_monitor_by_status(self, statuses: str):
+    def get_monitor_by_status(self, statuses: int = 2):
         """
         Fetch and returns the monitor by status. The possible statuses are:
             0: paused
@@ -264,11 +269,94 @@ class UptimeRobot():
             9: down
         :parameter: statuses: one of the above IDs or a combination of them in the format `X-X-X`
         """
-        monitor = self.get_monitors(status=statuses)
-        if not monitor or monitor['stat'] == 'fail':
+        monitor = self.get_monitors(statuses=statuses)
+        if not monitor['monitors'] or monitor['stat'] == 'fail':
             return {'stat': 'fail', 'message': 'Monitor not found'}
         else:
-            return monitor
+            return monitor['monitors']
+
+    def add_monitor(self, friendly_name: str, url: str, types: int, **kwargs):
+        """
+        Add a new monitor.
+        :param friendly_name: How the monitor will be known as
+        :param url: IP address or FQDN
+        :param types: 1 - HTTP(s), 2 - Keyword, 3 - Ping, 4 - Port
+        :param sub_type: It's mandatory and only used if type = 4.  Options are
+            1 - HTTP (80), 2 - HTTPS (443), 3 - FTP (21), 4 - SMTP (25),
+            5 - POP3 (110), 6 - IMAP (143), 99 - Custom Port
+        :param port: It's mandatory and only used if sub_type = 99
+        :param kwargs:
+        :return:
+        """
+        if types == 4:
+            if not int(kwargs['sub_type']):
+                raise ValueError('Missing parameter sub_type or wrong type passed')
+
+        if 'alert_contacts' in kwargs:
+            pass
+        elif self.alert_contacts:
+            kwargs.update({'alert_contacts': self.alert_contacts})
+        else:
+            pass
+
+        return self._http_request('newMonitor', friendly_name=friendly_name, url=url,
+                                  type=types, **kwargs)
+
+    def add_http_monitor(self, friendly_name: str, url: str, **kwargs):
+        """
+        Add new HTTP(s) monitor
+        :param friendly_name: How the monitor will be known as
+        :param url: http:// or https:// and domain name
+        :param kwargs: Among the options available for a new monitor, HTTP(s) have
+            http_username and http_password, to allow for HTTP Authentication
+        :return:
+        """
+        if 'alert_contacts' in kwargs:
+            pass
+        elif self.alert_contacts:
+            kwargs.update({'alert_contacts': self.alert_contacts})
+        else:
+            pass
+
+        return self._http_request('newMonitor', friendly_name=friendly_name,
+                                  url=url, type=1, **kwargs)
+
+    def add_ping_monitor(self, friendly_name: str, url: str, **kwargs):
+        """
+        Add new ping monitor
+        :param friendly_name: How the monitor will be known as
+        :param url: IP address or FQDN to be monitored
+        :param kwargs:
+        :return:
+        """
+        if 'alert_contacts' in kwargs:
+            pass
+        elif self.alert_contacts:
+            kwargs.update({'alert_contacts': self.alert_contacts})
+        else:
+            pass
+
+        return self._http_request('newMonitor', friendly_name=friendly_name,
+                                  url=url, type=3, **kwargs)
+
+    def add_port_monitor(self, friendly_name: str, url: str, port: int, **kwargs):
+        """
+        Add new port monitor
+        :param friendly_name: How the monitor will be known as
+        :param url: IP address or FQDN to be monitored
+        :param port: Port to be monitored
+        :param kwargs:
+        :return:
+        """
+        if 'alert_contacts' in kwargs:
+            pass
+        elif self.alert_contacts:
+            kwargs.update({'alert_contacts': self.alert_contacts})
+        else:
+            pass
+
+        return self._http_request('newMonitor', friendly_name=friendly_name,
+                                  url=url, type=3, sub_type=99, port=port, **kwargs)
     #######################################################################
     # END OF MONITORS DEFINITIONS
     #######################################################################
