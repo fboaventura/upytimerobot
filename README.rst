@@ -49,11 +49,12 @@ History
 -------
 
 [0.2.1] - 2018-06-28
---
+^^^^^^^^^^^^^^^^^^^^
 Some work was made toward improving the collection of monitors by type, status, etc..
 
 Added
---
+"""""
+
 - `.add_monitor` to add new monitors
 - `.add_http_monitor` to add http/https monitors
 - `.add_ping_monitor` to add ping monitors
@@ -61,23 +62,27 @@ Added
 - File `add_monitor.py` to serve as example of what can be achieved
 
 Changed
---
+"""""""
+
 - `Changelog` texts to be more clear
 - FIX: `get_monitor_by_status` is now working properly
 - FIX: `get_monitor_by_type` is now working properly
 
 [0.1.0] - 2018-06-18
----
+^^^^^^^^^^^^^^^^^^^^
+
 This is functional module already, one can query all the information regarding `account`, `monitors`, `alert contacts`, `maintenance windows` and `public status pages`.
 
 Also, the functions are all well documented, containing all the possible parameters that can be used to each of the queries available.
 
 Added
---
+"""""
+
 - Add `constants` file to hold parameters options and other constants that will be used
 
 Changed
---
+"""""""
+
 - Renamed some internal usage methods to differentiate from the public ones
 - Improved documentation on the existing methods
 - The importing of some libraries
