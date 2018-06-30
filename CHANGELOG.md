@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add support to delete existing Public Status Pages
 - Make the module work as a standalone script
 
-## [0.2.0] - 2018-06-28
+## [0.2.1] - 2018-06-28
 Some work was made toward improving the collection of monitors by type, status, etc..
 
 ### Added
@@ -69,6 +69,6 @@ The very beginning of this module, it arrives with all possible queries already 
   - `getMWindows`
   - `getPSPs`
 
-[0.2.0]: https://gitlab.com/fboaventura/upytimerobot/compare/0.1.0...0.2.0
+[0.2.1]: https://gitlab.com/fboaventura/upytimerobot/compare/0.1.0...0.2.1
 [0.1.0]: https://gitlab.com/fboaventura/upytimerobot/compare/0.0.1...0.1.0
 [Unreleased]: https://gitlab.com/fboaventura/upytimerobot/compare/0.0.1...master

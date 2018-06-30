@@ -13,7 +13,7 @@ from .colors import reset, red, yellow, blue, green
 from .constants import ts_monitor, ts_alert_contacts, ts_log, ts_mwidow, ts_psp
 
 __name__ = "upytimerobot"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "Frederico Freire Boaventura"
 __email__ = "frederico@boaventura.net"
 __url__ = "https://gitlab.com/fboaventura/upytimerobot"

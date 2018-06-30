@@ -48,7 +48,7 @@ ToDo
 History
 -------
 
-[0.2.0] - 2018-06-28
+[0.2.1] - 2018-06-28
 --
 Some work was made toward improving the collection of monitors by type, status, etc..
 
