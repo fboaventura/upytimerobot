@@ -1,0 +1,33 @@
+image: python:3.6
+
+variables:
+  UPTIMEROBOT_API: $CI_API_KEY
+  UPTIMEROBOT_CONTACTS: $CI_ALERT_CONTACTS
+  UPTIMEROBOT_LOGS: 0
+  UPTIMEROBOT_OUTPUT: json
+
+stages:
+  - test
+  - coverage
+
+before_script:
+  - pip install -r requirements.txt
+
+test:
+  stage: test
+  script:
+    - date
+    - python -m unittest -v
+    - date
+
+coverage:
+  stage: coverage
+  script:
+    - date
+    - pip install coverage codecov
+    - date
+    - coverage run -m unittest -v
+    - date
+    - coverage report --omit=tests.py
+    - codecov --token=$CODECOV_TOKEN
+  allow_failure: true
