@@ -42,20 +42,32 @@ def read(file_name):
 
 setup(
     name="upytimerobot",
+    description="""Module to interact with UptimeRobot API.""",
     version=upytimerobot.__version__,
-    description="""Python3 module to interact with UptimeRobot API.""",
-    long_description=read('README.rst'),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-    license='The MIT License',
-    platforms=['OS Independent'],
-    keywords='Uptime robot, API, monitoring',
     author=upytimerobot.__author__,
     author_email=upytimerobot.__email__,
     url=upytimerobot.__url__,
+    long_description=read('README.md'),
+    long_description_content_type='text/markdown',
+    license='MIT',
+    platforms=['OS Independent'],
+    keywords='uptime robot, api, monitoring, uptimerobot',
     packages=find_packages(),
     include_package_data=True,
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Intended Audience :: DevOps",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Operating System :: OS Independent",
+    ],
+    project_urls={
+        "Issues": "https://gitlab.com/fboaventura/upytimerobot/issues",
+        "Changelog": "https://gitlab.com/fboaventura/upytimerobot/blob/master/CHANGELOG.md",
+    }
 )
