@@ -7,67 +7,59 @@ Python3 module to interact with UptimeRobot API
 import json
 import requests
 import sys
+import os
 from urllib.parse import quote
 from upytimerobot import config
 from .colors import reset, red, yellow, blue, green
 from .constants import ts_monitor, ts_alert_contacts, ts_log, ts_mwidow, ts_psp
 
 __name__ = "upytimerobot"
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __author__ = "Frederico Freire Boaventura"
 __email__ = "frederico@boaventura.net"
 __url__ = "https://gitlab.com/fboaventura/upytimerobot"
-__all__ = ["get_account_details", "get_monitors", "get_monitor_by_name", "get_monitor_by_id",
-           "get_alert_contacts", "get_mwindows", "get_psps"]
+__all__ = ["UptimeRobot"]
 
 
-class UptimeRobot():
+class UptimeRobot:
     """
     All the interaction with UptimeRobot is added here.  The queries to the API are made through HTTP requests,
     using the URL defined at `api_url`
     """
+    # TODO: Improve the init scope, figuring the best available option to get the needed variables
     def __init__(self, **kwargs):
-        try:
-            self.api_key = kwargs['api_key']
-        except KeyError:
-            try:
-                config.init(kwargs['config'])
-                self.config = config.conf['default']
-                self.api_key = self.config['api_key']
-            except KeyError:
-                config.init()
-                self.config = config.conf['default']
-                self.api_key = self.config['api_key']
-
-        if not self.api_key:
-            config.error_exit('No API Key provided!')
-
-        if self.config['output']:
-            self.output = self.config['output']
-        elif kwargs['output']:
-            self.output = kwargs['output']
-        else:
-            self.output = 'json'
-
-        if self.config['logs']:
-            self.logs = self.config['logs']
-        elif kwargs['logs']:
-            self.output = kwargs['logs']
-        else:
-            self.logs = 0
-
-        if self.config['alert_contacts']:
-            self.alert_contacts = self.config['alert_contacts']
-        elif kwargs['alert_contacts']:
-            self.alert_contacts = kwargs['alert_contacts']
-        else:
-            pass
-
         self.api_url = "https://api.uptimerobot.com/v2/"
         self.headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'cache-control': 'no-cache',
         }
+
+        config_file = kwargs['config_file'] if 'config_file' in kwargs else 'config.ini'
+        if os.path.exists(config_file):
+            config.config_open(config_file)
+            self.config = config.conf
+
+            self.profile = profile if 'profile' in kwargs else self.config['default']['profile']
+
+            self.api_key = self.config[self.profile]['api_key']
+            self.output = self.config[self.profile]['output']
+            self.logs = self.config[self.profile]['logs']
+            self.alert_contacts = self.config[self.profile]['alert_contacts']
+
+        elif 'api_key' in kwargs:
+            self.api_key = kwargs['api_key'] if 'api_key' in kwargs else None
+            self.output = kwargs['output'] if 'output' in kwargs else 'json'
+            self.logs = kwargs['logs'] if 'logs' in kwargs else 0
+            self.alert_contacts = kwargs['alert_contacts'] if 'alert_contacts' in kwargs else ''
+
+        elif 'UPTIMEROBOT_API' in os.environ.keys():
+            self.api_key = os.environ.get('UPTIMEROBOT_API', None)
+            self.output = os.environ.get('UPTIMEROBOT_OUTPUT', 'json')
+            self.logs = os.environ.get('UPTIMEROBOT_LOGS', 0)
+            self.alert_contacts = os.environ.get('UPTIMEROBOT_CONTACTS', '')
+
+        elif self.api_key is None:
+                config.new_config(config_file)
 
     @staticmethod
     def _get_request_status(status_code: int):
