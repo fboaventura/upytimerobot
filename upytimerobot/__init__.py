@@ -39,7 +39,7 @@ class UptimeRobot:
             config.config_open(config_file)
             self.config = config.conf
 
-            self.profile = profile if 'profile' in kwargs else self.config['default']['profile']
+            self.profile = kwargs['profile'] if 'profile' in kwargs else self.config['default']['profile']
 
             self.api_key = self.config[self.profile]['api_key']
             self.output = self.config[self.profile]['output']
@@ -128,6 +128,17 @@ class UptimeRobot:
                 return result_post.json()
         except requests.exceptions.RequestException as e:
             return json.dumps(dict({'stat': 'fail', 'message': f'Error: {e}'}))
+
+    @staticmethod
+    def __monitor_status(status: int):
+        responses = {
+            0: 'paused',
+            1: 'not checked yet',
+            2: 'up',
+            8: 'seems down',
+            9: 'down'
+        }
+        return responses[status]
 
     #######################################################################
     # START ACCOUNT DETAILS DEFINITIONS
@@ -348,7 +359,10 @@ class UptimeRobot:
             pass
 
         return self._http_request('newMonitor', friendly_name=friendly_name,
-                                  url=url, type=3, sub_type=99, port=port, **kwargs)
+                                  url=url, type=4, sub_type=99, port=port, **kwargs)
+
+    def delete_monitor(self, monitor_id):
+        return self._http_request('deleteMonitor', id=monitor_id)
     #######################################################################
     # END OF MONITORS DEFINITIONS
     #######################################################################
