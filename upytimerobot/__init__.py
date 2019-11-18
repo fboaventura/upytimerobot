@@ -361,6 +361,29 @@ class UptimeRobot:
         Returns Alert Contacts defined on the account.
         """
         return self._http_request('getAlertContacts', **kwargs)
+
+    def add_alert_contact(self, friendly_name: str, types: int, value: str, **kwargs):
+        """
+        Add new alert contact associated with the account
+        :param friendly_name: How the contact will be known as
+        :param types:
+            Standard Methods: 2 E-mail, 8 Pro SMS, 14 Voice Call, 5 Webhook, 1 Email-to-SMS
+            3rd Party Apps/Services: 3 Twitter, 18 Telegram, 11 Slack, 20 Microsoft Teams,
+                21 Google Hangouts Chat, 10 HipChat, 6 Pushbullet (Push for Android, iOS & Browsers),
+                9 Pushover (Push for Android, iOS, Browsers & Desktop), 4 Boxcar 2 (Push for iOS), 7 Zapier
+        :param value: Value to be used
+        :param kwargs:
+        :return:
+        """
+        return self._http_request('newAlertContact', friendly_name=friendly_name, type=types, value=value, **kwargs)
+
+    def delete_alert_contact(self, contact_id):
+        """
+        Delete specified alert contact
+        :param contact_id:
+        :return:
+        """
+        return self._http_request('deleteAlertContact', id=contact_id)
     #######################################################################
     # END OF ALERT CONTACTS DEFINITIONS
     #######################################################################
