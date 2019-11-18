@@ -20,6 +20,9 @@ __email__ = "frederico@boaventura.net"
 __url__ = "https://gitlab.com/fboaventura/upytimerobot"
 __all__ = ["UptimeRobot"]
 
+# Define constants to be used along the code
+MONITOR_NOT_FOUND = 'Monitor not found'
+
 
 class UptimeRobot:
     """
@@ -233,7 +236,7 @@ class UptimeRobot:
         """
         monitor = self.get_monitors(search=friendly_name)
         if not monitor or monitor['stat'] == 'fail':
-            return {'stat': 'fail', 'message': 'Monitor not found'}
+            return {'stat': 'fail', 'message': MONITOR_NOT_FOUND}
         else:
             return monitor
 
@@ -243,7 +246,7 @@ class UptimeRobot:
         """
         monitor = self.get_monitors(monitors=monitor_id)
         if not monitor['monitors'] or monitor['stat'] == 'fail':
-            return {'stat': 'fail', 'message': 'Monitor not found'}
+            return {'stat': 'fail', 'message': MONITOR_NOT_FOUND}
         else:
             return monitor
 
@@ -258,7 +261,7 @@ class UptimeRobot:
         """
         monitor = self.get_monitors(types=types)
         if not monitor['monitors'] or monitor['stat'] == 'fail':
-            return {'stat': 'fail', 'message': 'Monitor not found'}
+            return {'stat': 'fail', 'message': MONITOR_NOT_FOUND}
         else:
             return monitor
 
@@ -274,7 +277,7 @@ class UptimeRobot:
         """
         monitor = self.get_monitors(statuses=statuses)
         if not monitor['monitors'] or monitor['stat'] == 'fail':
-            return {'stat': 'fail', 'message': 'Monitor not found'}
+            return {'stat': 'fail', 'message': MONITOR_NOT_FOUND}
         else:
             return monitor['monitors']
 
@@ -284,23 +287,18 @@ class UptimeRobot:
         :param friendly_name: How the monitor will be known as
         :param url: IP address or FQDN
         :param types: 1 - HTTP(s), 2 - Keyword, 3 - Ping, 4 - Port
-        :param sub_type: It's mandatory and only used if type = 4.  Options are
+        :param kwargs:
+            sub_type: It's mandatory and only used if type = 4.  Options are
             1 - HTTP (80), 2 - HTTPS (443), 3 - FTP (21), 4 - SMTP (25),
             5 - POP3 (110), 6 - IMAP (143), 99 - Custom Port
-        :param port: It's mandatory and only used if sub_type = 99
-        :param kwargs:
+            port: It's mandatory and only used if sub_type = 99
         :return:
         """
-        if types == 4:
-            if not int(kwargs['sub_type']):
-                raise ValueError('Missing parameter sub_type or wrong type passed')
+        if types == 4 and not int(kwargs['sub_type']):
+            raise ValueError('Missing parameter sub_type or wrong type passed')
 
-        if 'alert_contacts' in kwargs:
-            pass
-        elif self.alert_contacts:
+        if 'alert_contacts' not in kwargs and self.alert_contacts:
             kwargs.update({'alert_contacts': self.alert_contacts})
-        else:
-            pass
 
         return self._http_request('newMonitor', friendly_name=friendly_name, url=url,
                                   type=types, **kwargs)
@@ -314,12 +312,8 @@ class UptimeRobot:
             http_username and http_password, to allow for HTTP Authentication
         :return:
         """
-        if 'alert_contacts' in kwargs:
-            pass
-        elif self.alert_contacts:
+        if 'alert_contacts' not in kwargs and self.alert_contacts:
             kwargs.update({'alert_contacts': self.alert_contacts})
-        else:
-            pass
 
         return self._http_request('newMonitor', friendly_name=friendly_name,
                                   url=url, type=1, **kwargs)
@@ -332,12 +326,8 @@ class UptimeRobot:
         :param kwargs:
         :return:
         """
-        if 'alert_contacts' in kwargs:
-            pass
-        elif self.alert_contacts:
+        if 'alert_contacts' not in kwargs and self.alert_contacts:
             kwargs.update({'alert_contacts': self.alert_contacts})
-        else:
-            pass
 
         return self._http_request('newMonitor', friendly_name=friendly_name,
                                   url=url, type=3, **kwargs)
@@ -351,12 +341,8 @@ class UptimeRobot:
         :param kwargs:
         :return:
         """
-        if 'alert_contacts' in kwargs:
-            pass
-        elif self.alert_contacts:
+        if 'alert_contacts' not in kwargs and self.alert_contacts:
             kwargs.update({'alert_contacts': self.alert_contacts})
-        else:
-            pass
 
         return self._http_request('newMonitor', friendly_name=friendly_name,
                                   url=url, type=4, sub_type=99, port=port, **kwargs)
