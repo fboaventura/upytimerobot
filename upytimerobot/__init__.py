@@ -29,6 +29,7 @@ class UptimeRobot:
     All the interaction with UptimeRobot is added here.  The queries to the API are made through HTTP requests,
     using the URL defined at `api_url`
     """
+
     # TODO: Improve the init scope, figuring the best available option to get the needed variables
     def __init__(self, **kwargs):
         self.api_url = "https://api.uptimerobot.com/v2/"
@@ -62,7 +63,7 @@ class UptimeRobot:
             self.alert_contacts = os.environ.get('UPTIMEROBOT_CONTACTS', '')
 
         elif self.api_key is None:
-                config.new_config(config_file)
+            config.new_config(config_file)
 
     @staticmethod
     def _get_request_status(status_code: int):
@@ -72,23 +73,26 @@ class UptimeRobot:
         :return:
         """
         if status_code == 200:
-            return True
+            stat = 'ok'
+            message = 'Request successful'
         elif status_code == 401:
-            print(f"[{red('ERR')}] Error {status_code}: Authorization Error! "
-                  f"Please check your credentials and try again...")
-            sys.exit(status_code)
+            stat = 'fail'
+            message = (f"[{red('ERR')}] Error {status_code}: Authorization Error! "
+                       f"Please check your credentials and try again...")
         elif status_code == 500:
-            print(f"[{red('ERR')}] Error {status_code}: Internal Server Error.  "
-                  f"Nothing we can do now, but you may try again later.")
-            sys.exit(status_code)
+            stat = 'fail'
+            message = (f"[{red('ERR')}] Error {status_code}: Internal Server Error.  "
+                       f"Nothing we can do now, but you may try again later.")
         elif status_code == 403:
-            print(f"[{red('ERR')}] Error {status_code}: Permission to see this "
-                  f"resource is denied on server! Contact the administrator")
-            sys.exit(status_code)
+            stat = 'fail'
+            message = (f"[{red('ERR')}] Error {status_code}: Permission to see this "
+                       f"resource is denied on server! Contact the administrator")
         else:
-            print(f"[{red('ERR')}] Error {status_code}: There was an unexpected "
-                  f"error with the request.")
-            sys.exit(status_code)
+            stat = 'fail'
+            message = (f"[{red('ERR')}] Error {status_code}: There was an unexpected "
+                       f"error with the request.")
+
+        return {'status_code': status_code, 'stat': stat, 'message': message}
 
     @staticmethod
     def _error_messages(message: str, code: int = 1):
@@ -98,8 +102,7 @@ class UptimeRobot:
         :param code:
         :return: formatted error code and message
         """
-        print(f"({code}) {message}\n")
-        sys.exit(code)
+        return {'code': code, 'message': message}
 
     @staticmethod
     def _url_encode(url: str):
@@ -126,9 +129,14 @@ class UptimeRobot:
 
         try:
             result_post = requests.post(url, data=payload, headers=self.headers)
+            status = self._get_request_status(result_post.status_code)
 
-            if self._get_request_status(result_post.status_code):
+            if status['stat'] is 'ok':
                 return result_post.json()
+            else:
+                return json.dumps(dict({'stat': 'err', 'error': {'code': status['status_code'],
+                                                                 'message': status['message']}}))
+
         except requests.exceptions.RequestException as e:
             return json.dumps(dict({'stat': 'fail', 'message': f'Error: {e}'}))
 
@@ -157,6 +165,7 @@ class UptimeRobot:
              `up_monitors` -> how many monitors are up
         """
         return self._http_request('getAccountDetails')
+
     #######################################################################
     # END OF ACCOUNT DETAILS DEFINITIONS
     #######################################################################
@@ -276,7 +285,9 @@ class UptimeRobot:
         :parameter: statuses: one of the above IDs or a combination of them in the format `X-X-X`
         """
         monitor = self.get_monitors(statuses=statuses)
-        if not monitor['monitors'] or monitor['stat'] == 'fail':
+        if monitor['stat'] == 'fail':
+            return {'stat': 'fail', 'message': monitor['error']['type']}
+        elif monitor['monitors'].__len__() == 0:
             return {'stat': 'fail', 'message': MONITOR_NOT_FOUND}
         else:
             return monitor['monitors']
@@ -349,6 +360,7 @@ class UptimeRobot:
 
     def delete_monitor(self, monitor_id):
         return self._http_request('deleteMonitor', id=monitor_id)
+
     #######################################################################
     # END OF MONITORS DEFINITIONS
     #######################################################################
@@ -384,6 +396,7 @@ class UptimeRobot:
         :return:
         """
         return self._http_request('deleteAlertContact', id=contact_id)
+
     #######################################################################
     # END OF ALERT CONTACTS DEFINITIONS
     #######################################################################
@@ -396,6 +409,7 @@ class UptimeRobot:
         Returns Alert Contacts defined on the account.
         """
         return self._http_request('getMWindows', **kwargs)
+
     #######################################################################
     # END OF MAINTENANCE WINDOWS DEFINITIONS
     #######################################################################
