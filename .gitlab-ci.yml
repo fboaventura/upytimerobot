@@ -1,4 +1,4 @@
-image: python:3.6
+image: python:3.7
 
 variables:
   UPTIMEROBOT_API: $CI_API_KEY
@@ -8,6 +8,7 @@ variables:
 
 stages:
   - test
+  - analysis
   - coverage
 
 before_script:
@@ -19,6 +20,24 @@ test:
     - date
     - python -m unittest -v
     - date
+
+sonarqube:
+  stage: analysis
+  image: ciricihq/gitlab-sonar-scanner
+  variables:
+    SONAR_URL: ${SONAR_URL}
+    SONAR_ANALYSIS_MODE: issues
+  script:
+  - gitlab-sonar-scanner -Dsonar.login=$SONAR_LOGIN
+
+sonarqube-reports:
+  stage: analysis
+  image: ciricihq/gitlab-sonar-scanner
+  variables:
+    SONAR_URL: ${SONAR_URL}
+    SONAR_ANALYSIS_MODE: publish
+  script:
+  - gitlab-sonar-scanner -Dsonar.login=$SONAR_LOGIN
 
 coverage:
   stage: coverage
