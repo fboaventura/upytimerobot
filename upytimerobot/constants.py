@@ -37,3 +37,6 @@ ts_psp = {
              '3': 'status (up-down-paused)', '4': 'status (down-up-paused)'},
     'status': {'0': 'paused', '1': 'active'},
 }
+
+# Messages
+MONITOR_NOT_FOUND = 'Monitor not found'
