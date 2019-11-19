@@ -11,7 +11,7 @@ import os
 from urllib.parse import quote
 from upytimerobot import config
 from .colors import reset, red, yellow, blue, green
-from .constants import ts_monitor, ts_alert_contacts, ts_log, ts_mwidow, ts_psp
+from .constants import ts_monitor, ts_alert_contacts, ts_log, ts_mwidow, ts_psp, MONITOR_NOT_FOUND
 
 __name__ = "upytimerobot"
 __version__ = "0.2.2"
@@ -19,9 +19,6 @@ __author__ = "Frederico Freire Boaventura"
 __email__ = "frederico@boaventura.net"
 __url__ = "https://gitlab.com/fboaventura/upytimerobot"
 __all__ = ["UptimeRobot"]
-
-# Define constants to be used along the code
-MONITOR_NOT_FOUND = 'Monitor not found'
 
 
 class UptimeRobot:
@@ -234,6 +231,11 @@ class UptimeRobot:
                       'response_times_average', 'response_times_start_date', 'response_times_end_date',
                       'alert_contacts', 'mwindows', 'ssl', 'custom_http_headers', 'timezone', 'offset',
                       'limit', 'search']
+
+        # Test for all kwargs arguments passed if there are any invalid
+        for key in kwargs.keys():
+            if key not in parameters:
+                kwargs.pop(key, None)
 
         return self._http_request('getMonitors', **kwargs)
 
