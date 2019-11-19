@@ -22,21 +22,23 @@ test:
 
 sonarqube:
   stage: analysis
-  image: ciricihq/gitlab-sonar-scanner
+  image: fboaventura/dckr-sonar-scanner
   variables:
     SONAR_URL: ${SONAR_URL}
+    SONAR_LOGIN: ${SONAR_LOGIN}
     SONAR_ANALYSIS_MODE: issues
   script:
-  - gitlab-sonar-scanner
+    - sonar-scanner-runner.sh
 
 sonarqube-reports:
   stage: analysis
   image: fboaventura/dckr-sonar-scanner
   variables:
     SONAR_URL: ${SONAR_URL}
+    SONAR_LOGIN: ${SONAR_LOGIN}
     SONAR_ANALYSIS_MODE: publish
   script:
-  - gitlab-sonar-scanner -Dsonar.login=$SONAR_LOGIN
+  - sonar-scanner-runner.sh
 
 coverage:
   stage: coverage
