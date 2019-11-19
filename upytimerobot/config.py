@@ -19,8 +19,6 @@ def init(config_file='config.ini', config_section='default'):
     :param config_file: File that will be used to consult the configurations
     :param config_section: Profile to be used
     """
-    config_file = config_file
-    config_section = config_section
     config_open(config_file)
 
 
